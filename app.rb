@@ -3,6 +3,10 @@ require_relative 'teacher'
 require_relative 'book'
 require_relative 'rental'
 
+class App
+  attr_reader :book, :people, :rental
+end
+
 def list_books
   puts 'List of books:'
   @books.each { |book| puts "Title: \"#{book.title}\", Author: #{book.author}" }
