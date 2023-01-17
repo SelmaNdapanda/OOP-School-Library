@@ -5,7 +5,6 @@ def display_list
   puts 'Welcome to School Library App!'
   puts ''
 
-  # option = nil
   puts "
   Please choose an option by entering a number:
   1 - List all books
@@ -23,17 +22,17 @@ def options(app)
     option = gets.chomp.to_i
     case option
     when '1'
-      list_books
+      app.list_books
     when '2'
-      list_people
+      app.list_people
     when '3'
-      create_person
+      app.create_person
     when '4'
-      create_book
+      app.create_book
     when '5'
-      create_rental
+      app.create_rental
     when '6'
-      list_rentals_for_person_id
+      app.list_rentals_for_person_id
     else
       break
     end

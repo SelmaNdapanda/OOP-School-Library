@@ -2,130 +2,71 @@ require_relative 'student'
 require_relative 'teacher'
 require_relative 'book'
 require_relative 'rental'
+require_relative 'user_input'
 
 class App
-  attr_accessor :book, :people, :rental
+  attr_accessor :books, :people, :rentals
 
   def initialize
-    @book = []
+    @books = []
     @people = []
-    @rental = []
+    @rentals = []
   end
 
   def list_books
-    puts 'List of books:'
-    @books.each { |book| puts "Title: \"#{book.title}\", Author: #{book.author}" }
+    books.each_with_index { |book, index| puts "#{index}) Title: '#{book.title}', Author: #{book.author}" }
   end
 
   def list_people
-    puts 'List of people:'
-    @people.each { |person| puts "[#{person.class}] Name: #{person.name}, ID: #{person.id}, Age: #{person.age}" }
+    people.each_with_index { |person, index| puts "#{index}) [#{person.class}] Name: #{person.name}, ID: #{person.id}, Age: #{person.age}" }
   end
 
   # rubocop:disable Metrics/MethodLength
   def create_person
-    print 'Do you want to create a student (1) or a teacher (2)? [Input the number]: '
-    person_type = gets.chomp
+    age, name, choice = grab_person_data
 
-    if person_type != '1' && person_type != '2'
+    case choice
+    when 1
+      permission = grab_permission
+      student = Student.new(age, name: name, parent_permission: permission)
+      people << student
+      puts 'Person created successfully'
+    when 2
+      specialization = grab_specialization
+      teacher = Teacher.new(age, name: name, specialization: specialization)
+      people << teacher
+      puts 'Person created successfully'
+    else
       puts 'Invalid option'
-      return
     end
-
-    print 'Age: '
-    age = gets.chomp
-
-    print 'Name: '
-    name = gets.chomp
-
-    case person_type
-    when '1'
-      print 'Has parent permission? [Y/N]: '
-      parent_permission = gets.chomp
-      parent_permission = parent_permission.downcase == 'y'
-
-      person = Student.new(age, name: name, parent_permission: parent_permission)
-
-    when '2'
-      print 'Specialization: '
-      specialization = gets.chomp
-
-      person = Teacher.new(age, specialization: specialization, name: name)
-    end
-
-    @people << person
-
-    puts 'Person created successfully'
   end
-  # rubocop:enable Metrics/MethodLength
 
   def create_book
-    print 'Title: '
-    title = gets.chomp
-
-    print 'Author: '
-    author = gets.chomp
-
-    @books << Book.new(title, author)
+    title, author = grab_book_data
+    book = Book.new(title, author)
+    @books << book
     puts 'Book created successfully'
   end
 
   def create_rental
     puts 'Select a book from the following list by number'
-    @books.each_with_index { |book, index| puts "#{index}) Title: \"#{book.title}\", Author: #{book.author}" }
-    book_index = gets.chomp.to_i
-
-    puts
-
+    list_books
+    book = books[grab_book_input]
     puts 'Select a person from the following list by number (not id)'
-    # rubocop:disable Metrics/LineLength
-    @people.each_with_index { |person, index| puts "#{index}) [#{person.class}] Name: #{person.name}, ID: #{person.id}, Age: #{person.age}" }
-    person_index = gets.chomp.to_i
-    # rubocop:enable Metrics/LineLength
-
-    puts
-
-    print 'Date: '
-    date = gets.chomp
-
-    @rentals << Rental.new(date, @books[book_index], @people[person_index])
-    puts 'Rental created successfully'
+    list_people
+    person = people[grab_person_input]
+    puts 'Date:'
+    date = grab_date
+    rental = Rental.new(book, person, date)
+    @rentals << rental
+    puts 'rental created successfully'
   end
 
   def list_rentals_for_person_id
-    print 'ID of person: '
-    id = gets.chomp.to_i
-
+    id = grab_person_id
     puts 'Rentals:'
     @rentals.each do |rental|
-      puts "Date: #{rental.date}, Book \"#{rental.book.title}\" by #{rental.book.author}" if rental.person.id == id
-    end
-  end
-
-  def start
-    puts ''
-    puts 'Welcome to School Library App'
-    puts ''
-
-    # option = nil
-  end
-
-  def main
-    @books = []
-    @people = []
-    @rentals = []
-
-
-
-    while option != '7'
-      puts 'Please choose an option by entering a number:'
-      puts '1 - List all books'
-      puts '2 - List all people'
-      puts '3 - Create a person'
-      puts '4 - Create a book'
-      puts '5 - Create a rental'
-      puts '6 - List all rentals for a given person id'
-      puts '7 - Exit'
+      puts "Date: #{rental.date}, Book: '#{rental.book.title}' by #{rental.book.author}" if rental.person.id == id
     end
   end
 end
